@@ -90,6 +90,26 @@ credentials ++= {
   sbt ++ ivy ++ mvn
 }
 
+pgpPassphrase := {
+  def readFileLines(file: java.io.File): Iterator[String] = {
+    val source = io.Source.fromFile(file)
+    source.getLines
+  }
+  //
+  def readFileFirstNonEmptyLine(file: java.io.File): Option[String] = {
+    for(line <- readFileLines(file); trimmed = line.trim; if "" != trimmed)
+      return Some(line)
+    None
+  }
+  //
+  val sbt_credentials = Path.userHome / ".sbt"  / ".pgp"
+  val from_sbt = if (sbt_credentials.canRead) readFileFirstNonEmptyLine(sbt_credentials) else None
+  val from_env = sys.env.get("PGP_PASSPHRASE")
+  //
+  val result = from_sbt.getOrElse(from_env.getOrElse(""))
+  Some(result.toCharArray)
+}
+
 lazy val publishSignedAction = { st: State =>
   val extracted = Project.extract(st)
   val ref = extracted.get(thisProjectRef)
