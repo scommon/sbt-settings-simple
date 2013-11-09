@@ -1,3 +1,5 @@
+!.gitignore
+
 *.class
 *.log
 
@@ -11,3 +13,12 @@ project/plugins/project/
 
 # Scala-IDE specific
 .scala_dependencies
+
+# IntelliJ specific
+.idea/
+target/
+*.iml
+
+#VI
+*.swp
+
