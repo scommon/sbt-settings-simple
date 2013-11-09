@@ -54,7 +54,7 @@ publishTo <<= (version) { version: String =>
       ("snapshots", snapshot_repository)
     else
       ("releases",  release_repository)
-  Some(Resolver.url(name, new URL(url))(Resolver.ivyStylePatterns))
+  Some(Resolver.url(name, new URL(url))(Patterns(true, Resolver.mavenStyleBasePattern)))
 }
 
 credentials ++= {
