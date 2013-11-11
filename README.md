@@ -3,7 +3,7 @@
 This plugin provides an easier to use and configure interface into SBT which allows you to largely 
 ignore having to learn about SBT tasks and settings and to instead focus on delivering your work.
 
-It's goal is to simply *lower the barrier of entry for new SBT adopters.*
+Its goal is to simply *lower the barrier of entry for new SBT adopters.*
 
 You probably do not want to use this if you have heavy customizations of your build process although 
 it is flexible enough that you may get further than you realize with it while still being able to 
@@ -140,6 +140,11 @@ primarySettings := primary(
   , organization     = "org.scommon"
   , homepage         = "https://github.com/scommon/sbt-settings-simple"
   , vcsSpecification = "git@github.com:scommon/sbt-settings-simple.git"
+)
+
+compilerSettings := compiling(
+    scalaVersion  = "2.10.3"
+  , scalacOptions = Seq("-deprecation", "-unchecked")
 )
 
 mavenSettings := maven(
