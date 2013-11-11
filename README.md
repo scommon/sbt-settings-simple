@@ -180,9 +180,13 @@ publishSettings := publishing(
  * Automatically discovers the publishing destination's realm
  * Allows the customization of the behavior of producing pom output, release steps, serializing developer and license information, the prompt, the version control system for the prompt, loading credentials, loading the PGP passphrase, determining the next version after a release, and more.
 
+## Deficiencies
+ * ***Not tested for cross builds***
+ * Creating your own project template is confusing
+ * Need to provide easier access to the SBT project settings so it's easier to extend and compose
+
 ## Requirements
- * sbt >= 0.13.0
- * scala >= 2.10.0
+ * SBT >= 0.13.0
 
 ## Dependencies
 The following are automatically added as dependencies of this plugin and as such, do not to be explicitly added to `./project/build.sbt` (if they appear, you can safely remove them -- it's assumed you want to reduce boilerplate and that you want the safety of using this plugin which deals with the idiosyncrasies of the [PGP][1] and [release][2] plugins already):
