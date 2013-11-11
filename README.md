@@ -168,7 +168,7 @@ publishSettings := publishing(
 
 ### But why?
  * No need to know when to use `<<=` vs. `++=` vs. `+=` vs. `:=`
- * No need to know that the SBT release plugin (as of v0.8) does not sign artifacts during the publish task requiring you to customize the action to take.
+ * No need to know that the SBT release plugin (as of v0.8) does not sign artifacts during the publish task requiring you to customize the action to take
  * No need to know how to look for credentials on the system without specifying them explicitly in your SBT configuration using `credentials += ...`
  * Automatically looks in your maven settings (`~/.m2/settings.xml`) for credentials
  * Knows how to form a proper maven pom that will be accepted by Sonatype for publishing to Maven Central
@@ -297,13 +297,14 @@ the prompt itself is very easy. By default it does the following:
 ```scala
 "%s:%s:%s@%s> ".format(
   primaryName,        //As defined in primarySettings.name
-  projectDisplayName, //As defined in the project template: lazy val my_project = root("<DISPLAY NAME>")
+  projectDisplayName, //As defined in the project template:
+                      //    lazy val my_project = root("<DISPLAY NAME>")
   gitBranchName,      //Retrieved by running: git rev-parse --abbrev-ref HEAD
   gitShortenedCommit, //Retrieved by running: git rev-parse --short HEAD
 )
 ```
 
-This can changed by specifying prompt settings. For example:
+This can be changed by specifying `promptSettings.format`. For example:
 
 ```scala
 promptSettings := prompt(
@@ -319,22 +320,22 @@ usually provided with an instance of a `default` implementation, the current `ve
 
 ##### `preAppendToPom` <br />
    Inserts additional XML into a maven-style POM during publishing before `appendToPom` is called.
-   <br /><br />
+   <br />
 
 ##### `appendToPom` <br />
    Overrides the normal logic that would serialize the SCM information and developers. *It is not 
    suggested that you customize this unless you have the need.*
-   <br /><br />
+   <br />
 
 ##### `postAppendToPom` <br />
    Inserts additional XML into a maven-style POM during publishing after `appendToPom` is called. 
    ***This is usually the best place to insert your own customizations*** (e.g. adding a parent POM).
-   <br /><br />
+   <br />
 
 ##### `appendDeveloper` <br />
-   Transforms an instance of MavenSettingsDeveloper into XML. *It is not suggested that you customize 
+   Transforms an instance of `MavenSettingsDeveloper` into XML. *It is not suggested that you customize
    this unless you have the need.*
-   <br /><br />
+   <br />
 
 Example:
 
@@ -347,7 +348,7 @@ mavenSettings := maven(
    preAppendToPom = { (default, version, settings) =>
      NodeSeq.Empty
    },
-   postAppendToPom = { (default,version, settings) =>
+   postAppendToPom = { (default, version, settings) =>
      <parent>
        <groupId>org.sonatype.oss</groupId>
        <artifactId>oss-parent</artifactId>
@@ -372,20 +373,20 @@ mavenSettings := maven(
    defined as a `version` `String` which ends with `"SNAPSHOT"`) or to 
    `publishSettings.releaseRepository` for releases (which is defined as anything that is *not* a 
    snapshot).
-   <br /><br />
+   <br />
 
 ##### `autoDiscoverRealm` <br />
    Sometimes publishing to a maven repository can be difficult when using Ivy. It may attempt to 
    use the wrong realm when doing BASIC authentication. By default this performs an HTTP POST to 
    the repository in an attempt to automatically discover the realm for later authentication 
    when publishing an artifact.
-   <br /><br />
+   <br />
 
 ##### `loadCredentials` <br />
    This looks for credentials to use when publishing an artifact. By default it will attempt to 
    load user names and associated passwords from `~/.sbt/.credentials`, `~/.ivy2/.credentials`, 
    and `~/.m2/settings.xml` with preference for duplicates in that same order.
-   <br /><br />
+   <br />
 
 Example:
 
@@ -407,43 +408,46 @@ publishSettings := publishing(
 ##### `shouldSignArtifacts` <br />
    Allows you to change the logic for determining if artifacts should be signed or not. By default 
    this is governed by the `publishSettings.signArtifacts` setting.
-   <br /><br />
+   <br />
 
 ##### `nextVersion` <br />
    Sets the next version to be used after a release. By default this bumps the bugfix number and 
    makes it a snapshot. It would take `"0.0.2"` and make the next version be `"0.0.3-SNAPSHOT"` 
    assuming it's currently releasing 0.0.2.
-   <br /><br />
+   <br />
 
 ##### `loadPGPPassphrase` <br />
    This loads the PGP passphrase that's needed when signing an artifact. By default it looks for 
-   the PGP passphrase as a single line in `~/.sbt/.pgp`, if that does not exist it looks for an 
-   environment variable named `"PGP_PASSPHRASE"` and finally opts for an empty string (`""`) if it 
-   cannot find one.
-   <br /><br />
+   the PGP passphrase as a single line in `~/.sbt/.pgp`. If that does not exist it looks for an
+   environment variable named `"PGP_PASSPHRASE"` and if it is not defined it finally opts for an
+   empty string (`""`).
+   <br />
    
 ##### `customReleaseProcess` <br />
-   Produces a list of `sbtrelease.ReleaseStep` instances that specify the steps to perform during 
+   Produces a sequence of `sbtrelease.ReleaseStep` instances that specify the steps to perform during
    the release process. By default it simply delegates to `releaseProcessSettings.steps`. *It is not 
    suggested that you customize this unless you have the need.* Instead you should simply specify 
-   `releaseProcessSettings.steps`
-   <br /><br />
+   `releaseProcessSettings.steps`.
+   <br />
 
 Example:
 
 ```scala
 releaseProcessSettings := releaseProcess(
   steps = Seq(
-      stepCheckSnapshotDependencies              //
-    , stepRunTest                                //
-    , stepInquireVersions                        //
-    , stepSetReleaseVersion                      //
-    , stepCommitReleaseVersion                   //Performs the initial git checks
-    , stepTagRelease                             //
-    , stepPublishArtifacts                       //Already customized to determine if artifacts should be signed (https://github.com/sbt/sbt-release/issues/49)
-    , stepSetNextVersion                         //
-    , stepCommitNextVersion                      //
-    , stepPushChanges                            //Checks that an upstream branch is properly configured
+      stepCheckSnapshotDependencies //
+    , stepRunTest                   //
+    , stepInquireVersions           //
+    , stepSetReleaseVersion         //
+    , stepCommitReleaseVersion      //Performs the initial git checks
+    , stepTagRelease                //
+    , stepPublishArtifacts          //Already customized to determine if artifacts
+                                    //should be signed. Please see the following
+                                    //for details:
+                                    //  https://github.com/sbt/sbt-release/issues/49
+    , stepSetNextVersion            //
+    , stepCommitNextVersion         //
+    , stepPushChanges               //Checks that an upstream branch is properly configured
   ),
   behavior = releaseProcessBehavior(
     shouldSignArtifacts = { (default, version, settings) =>
