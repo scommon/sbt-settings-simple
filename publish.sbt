@@ -2,10 +2,10 @@
 val realm                = "Sonatype Nexus Repository Manager"
 
 
-val snapshot_credentials = "sonatype-nexus-staging"
+val snapshot_credentials = "sonatype-nexus-snapshots"
 val snapshot_repository  = "https://oss.sonatype.org/content/repositories/snapshots"
 
-val release_credentials  = "sonatype-nexus-snapshots"
+val release_credentials  = "sonatype-nexus-staging"
 val release_repository   = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
 
 val sign_artifacts       = true
