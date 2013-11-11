@@ -114,18 +114,18 @@ lazy val publishSignedAction = { st: State =>
 }
 
 releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies              //
-  , runTest                                //
-  , inquireVersions                        //
-  , setReleaseVersion                      //
-  , commitReleaseVersion                   //performs the initial git checks
-  , tagRelease                             //
-  , publishArtifacts.copy(action =         //uses publish-signed instead of publish if configured.
+    checkSnapshotDependencies       //
+  , runTest                         //
+  , inquireVersions                 //
+  , setReleaseVersion               //
+  , commitReleaseVersion            //performs the initial git checks
+  , tagRelease                      //
+  , publishArtifacts.copy(action =  //uses publish-signed instead of publish if configured.
       publishSignedAction
     )
-  , setNextVersion                         //
-  , commitNextVersion                      //
-  , pushChanges                            //also checks that an upstream branch is properly configured
+  , setNextVersion                  //
+  , commitNextVersion               //
+  , pushChanges                     //also checks that an upstream branch is properly configured
 )
 ```
 
@@ -437,6 +437,15 @@ publishSettings := publishing(
 Example:
 
 ```scala
+//The following import is important.
+//
+//It provides aliases for the release plugin's release steps
+//as well as an overridden one ("stepPublishArtifacts") that
+//takes into account settings specifying if you want to
+//sign artifacts or not.
+
+import SimpleSettings.ReleaseSteps._
+
 releaseProcessSettings := releaseProcess(
   steps = Seq(
       stepCheckSnapshotDependencies //
