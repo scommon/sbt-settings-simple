@@ -31,8 +31,10 @@ object PromptSettings {
           .getOpt(AdditionalSettings.projectPromptName)
           .getOrElse("")
 
-      val branch = settings.prompt.versionControl.branchName()
-      val commit = settings.prompt.versionControl.shortenedCurrentCommit()
+      val branch = try settings.prompt.versionControl.branchName()
+                   catch { case _: Throwable => println(s"Unable to determine the repository branch: ${settings.prompt.versionControl.help}"); VersionControl.Default.branchName() }
+      val commit = try settings.prompt.versionControl.shortenedCurrentCommit()
+                   catch { case _: Throwable => println(s"Unable to determine the repository commit: ${settings.prompt.versionControl.help}"); VersionControl.Default.shortenedCurrentCommit() }
 
       val project_name =
         if ("" == project_prompt_name)
