@@ -31,18 +31,23 @@ package org.scommon.sbt.settings {
       //
       //Example of what the header might look like:
       //  WWW-Authenticate: BASIC realm="Sonatype Nexus Repository Manager"
-      val response = POST(destination).headers.getOrElse("WWW-Authenticate", s"""BASIC realm="${settings.publish.realm}" """)
+      POST(destination) map { dest =>
+        val response = dest.headers.getOrElse("WWW-Authenticate", s"""BASIC realm="${settings.publish.realm}" """)
 
-      //Parse the return value to extract the realm.
-      val pattern = """(?<=realm=").+(?=")""".r
-      val realm = pattern findFirstIn response
+        //Parse the return value to extract the realm.
+        val pattern = """(?<=realm=").+(?=")""".r
+        val realm = pattern findFirstIn response
 
-      //If unable to extract the realm, attempt to use the default.
-      realm.getOrElse(settings.publish.realm)
+        //If unable to extract the realm, attempt to use the default.
+        realm getOrElse settings.publish.realm
+      } getOrElse settings.publish.realm
     }
 
-    protected def hostFor(destination: String, settings: CoreSettings): String = {
-      new URI(destination).getHost
+    protected def hostFor(destination: String, settings: CoreSettings): Option[String] = {
+      try Some(new URI(destination).getHost)
+      catch {
+        case _: Throwable => None
+      }
     }
 
     def loadCredentials(version: String, settings: CoreSettings): Seq[Credentials] = {
@@ -58,29 +63,31 @@ package org.scommon.sbt.settings {
         else
           settings.publish.realm
 
-      val host =
-        hostFor(destination, settings)
+      (for {
+        host <- hostFor(destination, settings)
+      } yield {
 
-      def loadMavenCredentials(file: java.io.File): Seq[Credentials] = {
-        for {
-          s <- xml.XML.loadFile(file) \ "servers" \ "server"
-          id = (s \ "id").text
-          if id == credentials_id
-          username = (s \ "username").text
-          password = (s \ "password").text
-        } yield Credentials(realm, host, username, password)
-      }
+        def loadMavenCredentials(file: java.io.File): Seq[Credentials] = {
+          for {
+            s <- xml.XML.loadFile(file) \ "servers" \ "server"
+            id = (s \ "id").text
+            if id == credentials_id
+            username = (s \ "username").text
+            password = (s \ "password").text
+          } yield Credentials(realm, host, username, password)
+        }
 
-      val sbt_credentials = Path.userHome / ".sbt"  / ".credentials"
-      val ivy_credentials = Path.userHome / ".ivy2" / ".credentials"
-      val mvn_credentials = Path.userHome / ".m2"   / "settings.xml"
+        val sbt_credentials = Path.userHome / ".sbt" / ".credentials"
+        val ivy_credentials = Path.userHome / ".ivy2" / ".credentials"
+        val mvn_credentials = Path.userHome / ".m2" / "settings.xml"
 
-      //Attempt to read in all the credentials.
-      val sbt = if (sbt_credentials.canRead) Seq(Credentials(sbt_credentials)) else Seq()
-      val ivy = if (ivy_credentials.canRead) Seq(Credentials(ivy_credentials)) else Seq()
-      val mvn = if (mvn_credentials.canRead) loadMavenCredentials(mvn_credentials) else Seq()
+        //Attempt to read in all the credentials.
+        val sbt = if (sbt_credentials.canRead) Seq(Credentials(sbt_credentials)) else Seq()
+        val ivy = if (ivy_credentials.canRead) Seq(Credentials(ivy_credentials)) else Seq()
+        val mvn = if (mvn_credentials.canRead) loadMavenCredentials(mvn_credentials) else Seq()
 
-      sbt ++ ivy ++ mvn
+        sbt ++ ivy ++ mvn
+      }) getOrElse Seq()
     }
   }
 }

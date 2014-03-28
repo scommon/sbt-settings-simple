@@ -84,6 +84,7 @@ package org.scommon.sbt.settings {
 //Unnamed package
 
 import org.scommon.sbt.settings._
+import org.scommon.sbt.settings.Utils._
 
 case object MavenBehavior extends MavenBehavior
 
@@ -96,7 +97,7 @@ object MavenSettings {
 
   val homepage =
     sbt.Keys.homepage :=
-      Some(url(org.scommon.sbt.settings.primarySettings.value.homepage))
+      optionUrl(org.scommon.sbt.settings.primarySettings.value.homepage)
 
   val pomIncludeRepository =
     sbt.Keys.pomIncludeRepository := { _ =>
