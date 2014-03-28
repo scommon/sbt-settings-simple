@@ -25,7 +25,7 @@ name := "sbt-settings-simple"
 
 organization := "org.scommon"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
@@ -203,7 +203,7 @@ The following are automatically added as dependencies of this plugin and as such
 
 Add the following line to `./project/build.sbt`:
 
-`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.1")`
+`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.3")`
 
 **Please omit any references to the [PGP][1] and [release][2] plugins.**
 
