@@ -9,27 +9,30 @@ import scala.collection.Seq
 import scala.collection.Traversable
 
 object CoreSettingsPlugin extends sbt.Plugin {
-    override val settings = Seq(
-      primarySettings   := SimpleSettings.primary(
+    override val projectSettings = Seq(
+      primarySettings in Global <<= (primarySettings in Global) ?? SimpleSettings.primary(
           name             = "<Name Unspecified>"
         , companyName      = "<Company Unspecified>"
         , organization     = "organization.unknown"
         , homepage         = "<Homepage Unspecified>"
         , vcsSpecification = "git@github.com:organization/project.git"
       ),
-      promptSettings    := SimpleSettings.prompt(
+      promptSettings in Global <<= (promptSettings in Global) ?? SimpleSettings.prompt(
       ),
-      compilerSettings  := SimpleSettings.compiling(
+      mavenSettings in Global <<= (mavenSettings in Global) ?? SimpleSettings.maven(
       ),
-      mavenSettings     := SimpleSettings.maven(
-      ),
-      publishSettings   := SimpleSettings.publishing(
+      publishSettings in Global <<= (publishSettings in Global) ?? SimpleSettings.publishing(
           releaseRepository     = "<Release Repository Unspecified>"
         , snapshotRepository    = "<Snapshot Repository Unspecified>"
         , releaseCredentialsID  = ""
         , snapshotCredentialsID = ""
       ),
-      releaseProcessSettings   := SimpleSettings.releaseProcess(
+      releaseProcessSettings in Global <<= (releaseProcessSettings in Global) ?? SimpleSettings.releaseProcess(
+      )
+    )
+
+    override val buildSettings = Seq(
+      compilerSettings in Global <<= (compilerSettings in Global) ?? SimpleSettings.compiling(
       )
     )
 
@@ -267,7 +270,7 @@ package org.scommon.sbt {
     import CoreSettingsPlugin._
 
     val DEFAULT_SCALA_VERSION : String =
-      "2.10.3"
+      "2.10.4"
 
     val DEFAULT_SCALAC_OPTIONS: Traversable[String] =
       Seq("-deprecation", "-unchecked", "-feature", "-Xelide-below", "900")

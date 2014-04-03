@@ -4,6 +4,7 @@ import Keys._
 
 package org.scommon.sbt.settings {
   object ProjectTemplates {
+    import Utils._
     import CoreSettingsPlugin.SimpleSettings.{PUBLISH_ARTIFACT, DO_NOT_PUBLISH_ARTIFACT}
 
     object root {
@@ -13,9 +14,12 @@ package org.scommon.sbt.settings {
       def apply(name: String, promptName: String, aggregate: ProjectReference*): Project =
         apply(name, promptName, PUBLISH_ARTIFACT, aggregate:_*)
 
-      def apply(name: String, promptName: String, publishArtifact: PublishArtifactSpecification, aggregate: ProjectReference*): Project = Project(
-        id        = ThisProject.root(name),
-        base      = ThisProject.root.base(),
+      def apply(name: String, promptName: String, publishArtifact: PublishArtifactSpecification, aggregate: ProjectReference*): Project =
+        apply(name, promptName, ".", publishArtifact, aggregate:_*)
+
+      def apply(name: String, promptName: String, base: String, publishArtifact: PublishArtifactSpecification, aggregate: ProjectReference*): Project = Project(
+        id        = normalizeId(ThisProject.root(name)),
+        base      = ThisProject.root.base(base),
         settings  = ThisProject.root.settings(promptName, publishArtifact eq PUBLISH_ARTIFACT),
 
         aggregate = aggregate.toSeq
@@ -33,7 +37,7 @@ package org.scommon.sbt.settings {
         apply(prefix, name, promptName, PUBLISH_ARTIFACT)
 
       def apply(prefix: String, name: String, promptName: String, publishArtifact: PublishArtifactSpecification): Project = Project(
-        id        = ThisProject.module(prefix, name),
+        id        = normalizeId(ThisProject.module(prefix, name)),
         base      = ThisProject.module.base(name),
         settings  = ThisProject.module.settings(promptName, publishArtifact eq PUBLISH_ARTIFACT)
       )

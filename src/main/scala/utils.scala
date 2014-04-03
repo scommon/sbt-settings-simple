@@ -25,4 +25,7 @@ object Utils {
     catch {
       case _: Throwable => None
     }
+
+  def normalizeId(id: String): String =
+    id.replaceAllLiterally("/", "-")
 }

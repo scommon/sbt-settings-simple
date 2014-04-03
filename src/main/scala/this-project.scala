@@ -17,6 +17,7 @@ package org.scommon.sbt.settings {
       def base(path:String = ".")      = file(path)
       def version                      = Keys.version in ThisBuild
       def settings(promptName: String, shouldPublishArtifact: Boolean) =
+        Defaults.defaultSettings ++
         Seq(
             AdditionalSettings.projectPromptName := promptName
           , publishArtifact := shouldPublishArtifact
@@ -24,8 +25,7 @@ package org.scommon.sbt.settings {
         PublishSettings.defaults ++
         ReleaseProcessSettings.defaults ++
         BuildSettings.defaults ++
-        MavenSettings.defaults ++
-        Defaults.defaultSettings
+        MavenSettings.defaults
     }
 
     object module {
@@ -41,6 +41,7 @@ package org.scommon.sbt.settings {
       def base(path:String)            = root.base(path)
       def version                      = root.version
       def settings(promptName: String, shouldPublishArtifact: Boolean) =
+        Defaults.defaultSettings ++
         Seq(
             AdditionalSettings.projectPromptName := promptName
           , publishArtifact := shouldPublishArtifact
@@ -48,8 +49,7 @@ package org.scommon.sbt.settings {
         PublishSettings.defaults ++
         ReleaseProcessSettings.defaults ++
         BuildSettings.defaults ++
-        MavenSettings.defaults ++
-        Defaults.defaultSettings
+        MavenSettings.defaults
     }
   }
 }
