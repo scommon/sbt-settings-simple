@@ -5,42 +5,36 @@ import Keys._
 package org.scommon.sbt.settings {
   object ProjectTemplates {
     import Utils._
-    import CoreSettingsPlugin.SimpleSettings.{PUBLISH_ARTIFACT, DO_NOT_PUBLISH_ARTIFACT}
 
-    object root {
-      def apply(name: String, aggregate: ProjectReference*): Project =
-        apply(name, "", PUBLISH_ARTIFACT, aggregate:_*)
+    def version = Keys.version in ThisBuild
 
-      def apply(name: String, promptName: String, aggregate: ProjectReference*): Project =
-        apply(name, promptName, PUBLISH_ARTIFACT, aggregate:_*)
-
-      def apply(name: String, promptName: String, publishArtifact: PublishArtifactSpecification, aggregate: ProjectReference*): Project =
-        apply(name, promptName, ".", publishArtifact, aggregate:_*)
-
-      def apply(name: String, promptName: String, base: String, publishArtifact: PublishArtifactSpecification, aggregate: ProjectReference*): Project = Project(
-        id        = normalizeId(ThisProject.root(name)),
-        base      = ThisProject.root.base(base),
-        settings  = ThisProject.root.settings(promptName, publishArtifact eq PUBLISH_ARTIFACT),
-
-        aggregate = aggregate.toSeq
-      )
-    }
+    def defaultSettings(prompt: String, publish: Boolean): Seq[Setting[_]] =
+      Defaults.defaultSettings ++
+      Seq(
+          AdditionalSettings.projectPromptName := prompt
+        , publishArtifact := publish
+      ) ++
+      PublishSettings.defaults ++
+      ReleaseProcessSettings.defaults ++
+      BuildSettings.defaults ++
+      MavenSettings.defaults
 
     object module {
-      def apply(name: String):Project =
-        apply("", name, "", PUBLISH_ARTIFACT)
-
-      def apply(prefix: String, name: String): Project =
-        apply(prefix, name, "", PUBLISH_ARTIFACT)
-
-      def apply(prefix: String, name: String, promptName: String): Project =
-        apply(prefix, name, promptName, PUBLISH_ARTIFACT)
-
-      def apply(prefix: String, name: String, promptName: String, publishArtifact: PublishArtifactSpecification): Project = Project(
-        id        = normalizeId(ThisProject.module(prefix, name)),
-        base      = ThisProject.module.base(name),
-        settings  = ThisProject.module.settings(promptName, publishArtifact eq PUBLISH_ARTIFACT)
-      )
+      def apply(name: String)
+               (base: String,
+                id: String = normalizeId(name),
+                prompt: String = name,
+                publish: Boolean = true,
+                additionalSettings: Iterable[Setting[_]] = Seq(),
+                aggregate: Iterable[ProjectReference] = Seq(),
+                dependencies: Iterable[ClasspathDep[ProjectReference]] = Seq()): Project =
+        Project(
+          id           = id,
+          base         = file(base),
+          settings     = defaultSettings(prompt, publish) ++ additionalSettings,
+          aggregate    = aggregate.toSeq,
+          dependencies = dependencies.toSeq
+        )
     }
   }
 }

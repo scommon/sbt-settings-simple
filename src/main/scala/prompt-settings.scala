@@ -20,6 +20,8 @@ trait TerminalPrompt {
 
 object PromptSettings {
   object Default extends TerminalPrompt {
+    override def toString = s"<default prompt settings>"
+
     def apply(settings: CoreSettings): (sbt.State => String) = (state: sbt.State) => {
       val extracted = sbt.Project.extract(state)
 

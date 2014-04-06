@@ -143,7 +143,7 @@ primarySettings := primary(
 )
 
 compilerSettings := compiling(
-    scalaVersion  = "2.10.3"
+    scalaVersion  = "2.10.4"
   , scalacOptions = Seq("-deprecation", "-unchecked")
 )
 
@@ -195,15 +195,15 @@ publishSettings := publishing(
 
 ## Dependencies
 The following are automatically added as dependencies of this plugin and as such, do not to be explicitly added to `./project/build.sbt` (if they appear, you can safely remove them -- it's assumed you want to reduce boilerplate and that you want the safety of using this plugin which deals with the idiosyncrasies of the [PGP][1] and [release][2] plugins already):
- * <a href="https://github.com/sbt/sbt-pgp" target="_blank">`"com.typesafe.sbt" % "sbt-pgp" % "0.8.1"`</a>
- * <a href="https://github.com/sbt/sbt-release" target="_blank">`"com.github.gseitz" % "sbt-release" % "0.8"`</a>
+ * <a href="https://github.com/sbt/sbt-pgp" target="_blank">`"com.typesafe.sbt" % "sbt-pgp" % "0.8.2"`</a>
+ * <a href="https://github.com/sbt/sbt-release" target="_blank">`"com.github.gseitz" % "sbt-release" % "0.8.3"`</a>
 
 ## Usage
 ### Adding the plugin dependency
 
 Add the following line to `./project/build.sbt`:
 
-`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.3")`
+`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.4")`
 
 **Please omit any references to the [PGP][1] and [release][2] plugins.**
 
@@ -224,34 +224,47 @@ You can instead do:
 ```scala
 import SimpleSettings._
 
-lazy val my_project = root("my_project")
+lazy val my_project = module("my_project")(".")
 ```
 
-The base is assumed to be "." (in most projects it is). All other settings for publishing and releasing are automatically configured for you.
+All settings for publishing and releasing are automatically configured for you.
 
 #### Multi-module project
 So what if you have multiple modules that should be built and released together? Your configuration would resemble the following:
 
 ```scala
-lazy val root = root(
-    DO_NOT_PUBLISH_ARTIFACT //Do not try and publish the root project since it's 
-                            //typically just a container for all of its modules.
-                            //
-  , core                    //These are aggregates.
-  , io                      //When you want to build everything by default, specify the 
-  , logging                 //list of projects here ("root" and "module" are just 
-  , security                //bringing in defaults for standard SBT projects)
+lazy val root          = module("all")(
+    base = "."
+  , publish = false                             //Do not try and publish the root project since it's
+                                                //typically just a container for all of its modules.
+
+  , aggregate = Seq(
+        core                                    //These are aggregates.
+      , io                                      //When you want to build everything by default, specify the
+      , logging                                 //list of projects here ("module" is just bringing in
+      , security                                //defaults for standard SBT projects).
+    )
 )
 
-lazy val core          = module("core")
+lazy val core          = module("core")("core") //Module returns a standard project
+                                                //reference which can be used like
+                                                //any normal SBT project ref.
 
-lazy val io            = module("io")
-  .dependsOn(core    % "compile")
+lazy val io            = module("io")(          //This is an alternative way of specifying
+    base = "io"                                 //dependencies and other information such
+  , dependencies = Seq(                         //as id, aggregates, and settings.
+      core % "compile"
+    )
+)
 
-lazy val logging       = module("logging")
-  .dependsOn(core    % "compile")
+lazy val logging       = Project(               //You can easily integrate with existing project
+    id = "core"                                 //definitions using the simpleSettings() method
+  , base = file("core")                         //which provides a Seq[Setting[_]] instance.
+  , settings = simpleSettings(prompt = "core", publish = true)
+  , dependencies = Seq(core % "compile")
+)
 
-lazy val security      = module("security")
+lazy val security      = module("security")("security")
   .dependsOn(core    % "compile")
   .dependsOn(io      % "compile")
   .dependsOn(logging % "compile")
@@ -259,7 +272,7 @@ lazy val security      = module("security")
 
 You can see that for now you're not well-insulated from SBT's project and dependency configuration. That may be addressed later.
 
-Modules are assumed to be in a directory off the root directory with the same name as the provided ID. So if I have a module named `core` it should be in:
+Modules can be in any directory off the root directory, but normally they're in a subdirectory directly off the root. So if I have a module named `core` it should be in:
 
 ```
 <root>
@@ -478,7 +491,7 @@ releaseProcessSettings := releaseProcess(
 ```
 
 ## License
-Copyright (c) 2013 David Hoyt
+Copyright (c) 2013-2014 David Hoyt
 
 Published under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 

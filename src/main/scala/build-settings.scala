@@ -9,8 +9,7 @@ import org.scommon.sbt.settings._
 
 object BuildSettings {
 
-  val defaults = Seq(
-
+  val defaults: Seq[sbt.Def.Setting[_]] = Seq(
       sbt.Keys.shellPrompt   := org.scommon.sbt.settings.promptSettings.value.prompt(
                                   CoreSettings(
                                       org.scommon.sbt.settings.primarySettings.value
@@ -25,7 +24,6 @@ object BuildSettings {
     , sbt.Keys.scalaVersion  := org.scommon.sbt.settings.compilerSettings.value.scalaVersion
     , sbt.Keys.scalacOptions := org.scommon.sbt.settings.compilerSettings.value.scalacOptions.toSeq
     , sbt.Keys.javacOptions  := org.scommon.sbt.settings.compilerSettings.value.javacOptions.toSeq
-
   )
 
 }

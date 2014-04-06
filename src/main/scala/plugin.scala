@@ -10,39 +10,47 @@ import scala.collection.Traversable
 
 object CoreSettingsPlugin extends sbt.Plugin {
     override val projectSettings = Seq(
-      primarySettings in Global <<= (primarySettings in Global) ?? SimpleSettings.primary(
-          name             = "<Name Unspecified>"
-        , companyName      = "<Company Unspecified>"
-        , organization     = "organization.unknown"
-        , homepage         = "<Homepage Unspecified>"
-        , vcsSpecification = "git@github.com:organization/project.git"
-      ),
-      promptSettings in Global <<= (promptSettings in Global) ?? SimpleSettings.prompt(
-      ),
-      mavenSettings in Global <<= (mavenSettings in Global) ?? SimpleSettings.maven(
-      ),
-      publishSettings in Global <<= (publishSettings in Global) ?? SimpleSettings.publishing(
-          releaseRepository     = "<Release Repository Unspecified>"
-        , snapshotRepository    = "<Snapshot Repository Unspecified>"
-        , releaseCredentialsID  = ""
-        , snapshotCredentialsID = ""
-      ),
-      releaseProcessSettings in Global <<= (releaseProcessSettings in Global) ?? SimpleSettings.releaseProcess(
-      )
+      primarySettings in Global <<= (primarySettings in Global) ?? {
+        SimpleSettings.primary(
+            name             = "<Unknown Primary Name>"
+          , companyName      = "<Unknown Primary Company>"
+          , organization     = "unknown"
+          , homepage         = "<Unknown Primary Homepage>"
+          , vcsSpecification = "<Unknown Primary VCS Specification"
+        )
+      },
+      promptSettings in Global <<= (promptSettings in Global) ?? {
+        SimpleSettings.prompt(
+        )
+      },
+      mavenSettings in Global <<= (mavenSettings in Global) ?? {
+        SimpleSettings.maven(
+        )
+      },
+      publishSettings in Global <<= (publishSettings in Global) ?? {
+        SimpleSettings.publishing(
+            releaseRepository     = "<Release Repository Unspecified>"
+          , snapshotRepository    = "<Snapshot Repository Unspecified>"
+          , releaseCredentialsID  = ""
+          , snapshotCredentialsID = ""
+        )
+      },
+      releaseProcessSettings in Global <<= (releaseProcessSettings in Global) ?? {
+        SimpleSettings.releaseProcess(
+        )
+      }
     )
 
     override val buildSettings = Seq(
-      compilerSettings in Global <<= (compilerSettings in Global) ?? SimpleSettings.compiling(
-      )
+      compilerSettings in Global <<= (compilerSettings in Global) ?? {
+        SimpleSettings.compiling(
+        )
+      }
     )
 
     object SimpleSettings {
-      case object PUBLISH_ARTIFACT extends PublishArtifactSpecification
-      case object DO_NOT_PUBLISH_ARTIFACT extends PublishArtifactSpecification
-
       val defaultPrompt = PromptSettings.Default
       val git           = VersionControl.Git
-      val root          = ProjectTemplates.root
       val module        = ProjectTemplates.module
 
       val primarySettings        = settingKey[PrimarySettings]("Standard primary settings")
@@ -51,6 +59,9 @@ object CoreSettingsPlugin extends sbt.Plugin {
       val mavenSettings          = settingKey[MavenSettings]("Standard maven settings")
       val publishSettings        = settingKey[PublishSettings]("Standard publish settings")
       val releaseProcessSettings = settingKey[ReleaseProcessSettings]("Standard release process settings")
+
+      def simpleSettings(prompt: String, publish: Boolean) =
+        ProjectTemplates.defaultSettings(prompt, publish)
 
       sealed case class primary(
           name            : String
@@ -286,7 +297,6 @@ package org.scommon.sbt {
 
     val defaultPrompt = PromptSettings.Default
     val git           = VersionControl.Git
-    val root          = ProjectTemplates.root
     val module        = ProjectTemplates.module
 
     val primarySettings        = SimpleSettings.primarySettings
@@ -301,8 +311,6 @@ package org.scommon.sbt {
       //project templates.
       val projectPromptName = settingKey[String]("Display name for a project")
     }
-
-    sealed trait PublishArtifactSpecification
   }
 }
 

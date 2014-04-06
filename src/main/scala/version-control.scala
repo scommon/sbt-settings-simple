@@ -32,6 +32,8 @@ object VersionControl {
   }
 
   object Git extends VersionControl {
+    override def toString = s"<git version control>"
+    
     def firstOrThrow(command: String): String = {
       val stdout = mutable.ArrayBuffer[String]()
       val exit_code = Process(command) ! new ProcessLogger {
