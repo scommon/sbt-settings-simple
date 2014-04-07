@@ -134,7 +134,7 @@ And turns it into:
 ```scala
 import SimpleSettings._
 
-primarySettings := primary(
+primarySettings in Global := primary(
     name             = "sbt-settings-simple"
   , companyName      = "scommon"
   , organization     = "org.scommon"
@@ -142,12 +142,12 @@ primarySettings := primary(
   , vcsSpecification = "git@github.com:scommon/sbt-settings-simple.git"
 )
 
-compilerSettings := compiling(
+compilerSettings in Global := compiling(
     scalaVersion  = "2.10.4"
   , scalacOptions = Seq("-deprecation", "-unchecked")
 )
 
-mavenSettings := maven(
+mavenSettings in Global := maven(
   license(
       name  = "The Apache Software License, Version 2.0"
     , url   = "http://www.apache.org/licenses/LICENSE-2.0.txt"
@@ -163,7 +163,7 @@ mavenSettings := maven(
   )
 )
 
-publishSettings := publishing(
+publishSettings in Global := publishing(
     releaseCredentialsID  = "sonatype-nexus-staging"
   , releaseRepository     = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
   , snapshotCredentialsID = "sonatype-nexus-snapshots"
