@@ -81,12 +81,20 @@ package org.scommon.sbt.settings {
         val ivy_credentials = Path.userHome / ".ivy2" / ".credentials"
         val mvn_credentials = Path.userHome / ".m2" / "settings.xml"
 
+        //Attempt to gather credentials from the environment if possible.
+        val env = Seq(sys.env.get("PUBLISH_USER"), sys.env.get("PUBLISH_PASSWORD")).flatten match {
+          case Seq(username, password) =>
+            Seq(Credentials(realm, host, username, password))
+          case _ =>
+            Seq()
+        }
+
         //Attempt to read in all the credentials.
         val sbt = if (sbt_credentials.canRead) Seq(Credentials(sbt_credentials)) else Seq()
         val ivy = if (ivy_credentials.canRead) Seq(Credentials(ivy_credentials)) else Seq()
         val mvn = if (mvn_credentials.canRead) loadMavenCredentials(mvn_credentials) else Seq()
 
-        sbt ++ ivy ++ mvn
+        env ++ sbt ++ ivy ++ mvn
       }) getOrElse Seq()
     }
   }
