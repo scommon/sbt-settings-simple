@@ -406,7 +406,8 @@ mavenSettings := maven(
 
 ##### `loadCredentials` <br />
    This looks for credentials to use when publishing an artifact. By default it will attempt to 
-   load user names and associated passwords from `~/.sbt/.credentials`, `~/.ivy2/.credentials`, 
+   load user names and associated passwords by first looking at the PUBLISH_USER and PUBLISH_PASSWORD
+   environment variables and then from `~/.sbt/.credentials`, `~/.ivy2/.credentials`,
    and `~/.m2/settings.xml` with preference for duplicates in that same order.
    <br />
 
