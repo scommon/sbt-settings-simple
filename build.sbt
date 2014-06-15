@@ -12,7 +12,7 @@ scalaVersion := "2.10.4"
 
 
 
-scalacOptions := Seq("-deprecation", "-unchecked")
+scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-language:implicitConversions")
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
