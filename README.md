@@ -103,6 +103,27 @@ credentials ++= {
   sbt ++ ivy ++ mvn
 }
 
+apiMappings ++= {
+  def findManagedDependency(organization: String, name: String): Option[File] = {
+    (for {
+      entry <- (fullClasspath in (Compile)).value
+      module <- entry.get(moduleID.key) if module.organization == organization && module.name.startsWith(name)
+    } yield entry.data).headOption
+  }
+  val links: Seq[Option[(File, URL)]] = Seq(
+    findManagedDependency("com.typesafe", "config").map(d => d -> url("http://typesafehub.github.io/config/latest/api/")),
+    findManagedDependency("com.typesafe.akka", "akka-actor").map(d => d -> url(s"http://doc.akka.io/api/akka/2.3.3/")),
+    findManagedDependency("org.scalacheck", "scalacheck").map(d => d -> url(s"http://rickynils.github.io/scalacheck/api-1.10.1/"))
+  )
+  links.collect { case Some(d) => d }.toMap
+}
+
+scalacOptions in (Compile, doc) ++= Seq("-groups", "-implicits")
+
+autoAPIMappings := true
+
+apiURL := Some(url("http://scommon.github.io/sbt-settings-simple/api/"))
+
 lazy val publishSignedAction = { st: State =>
   val extracted = Project.extract(st)
   val ref = extracted.get(thisProjectRef)
@@ -145,6 +166,17 @@ primarySettings in Global := primary(
 compilerSettings in Global := compiling(
     scalaVersion  = "2.10.4"
   , scalacOptions = Seq("-deprecation", "-unchecked")
+)
+
+scaladocSettings in Global := scaladocs(
+    options            = Seq("-groups", "-implicits")
+  , useAutoApiMappings = true
+  , baseApiUri         = "http://scommon.github.io/sbt-settings-simple/api/"
+  , apiMappings        = Map(
+      "com.typesafe"        % "config"      -> "http://typesafehub.github.io/config/latest/api/"
+    , "com.typesafe.akka"   % "akka"        -> {spec: ArtifactSpec => s"http://doc.akka.io/api/akka/${spec.revision}/"}
+    , "org.scalacheck"     %% "scalacheck"  -> "http://scalacheck.org/files/scalacheck_2.11-1.11.4-api/"
+  )
 )
 
 mavenSettings in Global := maven(
@@ -288,6 +320,7 @@ Modules can be in any directory off the root directory, but normally they're in 
 This plugin adds no tasks other than those provided by the [PGP][1] and [release][2] plugins themselves. It does however provide the following `settingKey`s that you can reference directly in your `.sbt` file after specifying `import SimpleSettings._`:
  * `primarySettings        := primary(...)`
  * `compilerSettings       := compiling(...)`
+ * `scaladocSettings       := scaladocs(...)`
  * `mavenSettings          := maven(...)`
  * `publishSettings        := publishing(...)`
  * `releaseProcessSettings := releaseProcess(...)`
@@ -337,6 +370,32 @@ promptSettings := prompt(
 ### Behaviors
 You can alter the default behavior if it does not suit your needs yet retain the rest of the functionality that this plugin provides. Each setting (except for `primarySettings`, `compilerSettings`, and `promptSettings`) provides a `behavior` parameter that allows you to completely override all the behaviors for that setting or only select ones. They're specified in the form of callbacks and are 
 usually provided with an instance of a `default` implementation, the current `version` as a `String`, and an instance of `CoreSettings` that provides access to all settings defined through this plugin.
+
+#### scaladocs
+
+##### `generateApiMappings` <br />
+   Examines a project's dependencies (both managed and unmanaged) and returns a mapping from a jar
+   to a URL that scaladoc uses to reference external APIs. The default implementation looks for
+   dependencies with the provided group ID and that start with the name of the provided artifact
+   ID. The version number is typically ignored but if provided will be used.
+   <br />
+
+Example:
+
+```scala
+scaladocSettings := scaladocs(
+  ...
+  behavior = scaladocBehavior(
+    generateApiMappings = { (default, classpath, settings) =>
+      //Every artifact will use the same uber scaladoc API URL.
+      classpath map {
+        case (spec, jar) => jar -> url("http://example.org/uber/api/")
+      }.toMap
+    }
+  )
+  ...
+)
+```
 
 #### maven
 
