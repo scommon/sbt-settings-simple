@@ -116,6 +116,7 @@ object PublishSettings {
               org.scommon.sbt.settings.primarySettings.value
             , org.scommon.sbt.settings.promptSettings.value
             , org.scommon.sbt.settings.compilerSettings.value
+            , org.scommon.sbt.settings.scaladocSettings.value
             , org.scommon.sbt.settings.mavenSettings.value
             , org.scommon.sbt.settings.publishSettings.value
             , org.scommon.sbt.settings.releaseProcessSettings.value
@@ -134,6 +135,7 @@ object PublishSettings {
             org.scommon.sbt.settings.primarySettings.value
           , org.scommon.sbt.settings.promptSettings.value
           , org.scommon.sbt.settings.compilerSettings.value
+          , org.scommon.sbt.settings.scaladocSettings.value
           , org.scommon.sbt.settings.mavenSettings.value
           , org.scommon.sbt.settings.publishSettings.value
           , org.scommon.sbt.settings.releaseProcessSettings.value

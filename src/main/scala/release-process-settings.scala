@@ -67,6 +67,7 @@ object ReleaseProcessSettings {
               org.scommon.sbt.settings.primarySettings.value
             , org.scommon.sbt.settings.promptSettings.value
             , org.scommon.sbt.settings.compilerSettings.value
+            , org.scommon.sbt.settings.scaladocSettings.value
             , org.scommon.sbt.settings.mavenSettings.value
             , org.scommon.sbt.settings.publishSettings.value
             , org.scommon.sbt.settings.releaseProcessSettings.value
@@ -115,6 +116,7 @@ object ReleaseProcessSettings {
               org.scommon.sbt.settings.primarySettings.value
             , org.scommon.sbt.settings.promptSettings.value
             , org.scommon.sbt.settings.compilerSettings.value
+            , org.scommon.sbt.settings.scaladocSettings.value
             , org.scommon.sbt.settings.mavenSettings.value
             , org.scommon.sbt.settings.publishSettings.value
             , org.scommon.sbt.settings.releaseProcessSettings.value
@@ -129,6 +131,7 @@ object ReleaseProcessSettings {
             org.scommon.sbt.settings.primarySettings.value
           , org.scommon.sbt.settings.promptSettings.value
           , org.scommon.sbt.settings.compilerSettings.value
+          , org.scommon.sbt.settings.scaladocSettings.value
           , org.scommon.sbt.settings.mavenSettings.value
           , org.scommon.sbt.settings.publishSettings.value
           , org.scommon.sbt.settings.releaseProcessSettings.value
@@ -167,6 +170,7 @@ object ReleaseProcessSettings {
           extracted.get(org.scommon.sbt.settings.primarySettings)
         , extracted.get(org.scommon.sbt.settings.promptSettings)
         , extracted.get(org.scommon.sbt.settings.compilerSettings)
+        , extracted.get(org.scommon.sbt.settings.scaladocSettings)
         , extracted.get(org.scommon.sbt.settings.mavenSettings)
         , extracted.get(org.scommon.sbt.settings.publishSettings)
         , extracted.get(org.scommon.sbt.settings.releaseProcessSettings)

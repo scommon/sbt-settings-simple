@@ -3,6 +3,8 @@ import scala.collection._
 
 package org.scommon.sbt.settings {
 
+import org.apache.ivy.core.module.id.ModuleId
+
 import scala._
 import scala.xml._
 import scala.collection.Seq
@@ -21,6 +23,14 @@ object CoreSettingsPlugin extends sbt.Plugin {
       },
       promptSettings in Global <<= (promptSettings in Global) ?? {
         SimpleSettings.prompt(
+        )
+      },
+      scaladocSettings in Global <<= (scaladocSettings in Global) ?? {
+        SimpleSettings.scaladocs(
+            options            = DEFAULT_SCALADOC_OPTIONS
+          , useAutoApiMappings = true
+          , baseApiUri         = ""
+          , apiMappings        = Map()
         )
       },
       mavenSettings in Global <<= (mavenSettings in Global) ?? {
@@ -59,6 +69,7 @@ object CoreSettingsPlugin extends sbt.Plugin {
       val mavenSettings          = settingKey[MavenSettings]("Standard maven settings")
       val publishSettings        = settingKey[PublishSettings]("Standard publish settings")
       val releaseProcessSettings = settingKey[ReleaseProcessSettings]("Standard release process settings")
+      val scaladocSettings       = settingKey[ScaladocSettings]("Standard scaladoc settings")
 
       def simpleSettings(prompt: String, publish: Boolean) =
         ProjectTemplates.defaultSettings(prompt, publish)
@@ -70,6 +81,70 @@ object CoreSettingsPlugin extends sbt.Plugin {
         , homepage        : String
         , vcsSpecification: String
       ) extends PrimarySettings
+
+
+      trait ArtifactSpec {
+        def organization: String
+        def name        : String
+        def revision    : String
+        def isRevisionSpecified =
+          (revision ne null) && "" != revision
+      }
+
+      sealed case class scaladocs(
+          options           : Traversable[String]   = DEFAULT_SCALADOC_OPTIONS
+        , useAutoApiMappings: Boolean               = true
+        , baseApiUri        : String                = ""
+        , apiMappings       : ScaladocApiMappingMap = Map()
+        , behavior          : ScaladocBehavior      = ScaladocBehavior
+      ) extends ScaladocSettings
+
+      implicit val groupArtifactId2ApiMappingSpecification =
+        ScaladocBehavior.groupArtifactId2ApiMappingSpecification _
+
+      implicit val moduleId2ApiMappingSpecification =
+        ScaladocBehavior.moduleId2ApiMappingSpecification _
+
+      implicit def groupArtifactId2ApiMappingSpecificationTuple2[T](spec: (sbt.impl.GroupArtifactID, T)): (ArtifactSpec, T) =
+        ScaladocBehavior.groupArtifactId2ApiMappingSpecificationTuple2(spec)
+
+      implicit def moduleId2ApiMappingSpecificationTuple2[T](spec: (ModuleID, T)): (ArtifactSpec, T) =
+        ScaladocBehavior.moduleId2ApiMappingSpecificationTuple2(spec)
+
+      implicit val groupArtifactMap2ApiMappingSpecification =
+        ScaladocBehavior.groupArtifactMap2ApiMappingSpecification _
+
+      implicit val moduleIdMap2ApiMappingSpecification =
+        ScaladocBehavior.moduleIdMap2ApiMappingSpecification _
+
+      implicit val string2ScaladocApiMappingUri =
+        ScaladocBehavior.string2ScaladocApiMappingUri _
+
+      implicit def groupArtifactId2ApiMappingSpecificationTuple2WithString(spec: (sbt.impl.GroupArtifactID, String)): (ArtifactSpec, ScaladocApiMappingUri) =
+        (groupArtifactId2ApiMappingSpecification(spec._1), string2ScaladocApiMappingUri(spec._2))
+
+      implicit def moduleId2ApiMappingSpecificationTuple2WithString(spec: (ModuleID, String)): (ArtifactSpec, ScaladocApiMappingUri) =
+        (moduleId2ApiMappingSpecification(spec._1), string2ScaladocApiMappingUri(spec._2))
+
+      object scaladocs {
+        def apply(apiMapping: (ArtifactSpec, ScaladocApiMappingUri), apiMappings: (ArtifactSpec, ScaladocApiMappingUri)*): ScaladocSettings =
+          scaladocs(apiMappings = Map(apiMapping) ++ apiMappings.toMap)
+      }
+
+      object scaladocBehavior {
+        def apply(
+            generateApiMappings: (ScaladocBehavior, Seq[(ArtifactSpec, sbt.File)], CoreSettings) => immutable.Map[sbt.File, sbt.URL] = { (_, x, y) =>
+              ScaladocBehavior.generateApiMappings(x, y)
+            }
+        ): ScaladocBehavior = {
+          val fnGenerateApiMappings = generateApiMappings
+
+          new ScaladocBehavior {
+            override def generateApiMappings(fullClasspath: Seq[(ArtifactSpec, sbt.File)], settings: CoreSettings): immutable.Map[sbt.File, sbt.URL] =
+              fnGenerateApiMappings(ScaladocBehavior, fullClasspath, settings)
+          }
+        }
+      }
 
       sealed case class prompt(
           prompt        : TerminalPrompt = defaultPrompt
@@ -280,16 +355,22 @@ package org.scommon.sbt {
   package object settings {
     import CoreSettingsPlugin._
 
-    val DEFAULT_SCALA_VERSION : String =
+    type ScaladocApiMappingUri = SimpleSettings.ArtifactSpec => String
+    type ScaladocApiMappingMap = Map[SimpleSettings.ArtifactSpec, ScaladocApiMappingUri]
+
+    val DEFAULT_SCALA_VERSION   : String =
       "2.10.4"
 
-    val DEFAULT_SCALAC_OPTIONS: Traversable[String] =
+    val DEFAULT_SCALAC_OPTIONS  : Traversable[String] =
       Seq("-deprecation", "-unchecked", "-feature", "-Xelide-below", "900")
 
-    val DEFAULT_JAVAC_OPTIONS : Traversable[String] =
+    val DEFAULT_JAVAC_OPTIONS   : Traversable[String] =
       Seq("-Xlint:unchecked")
 
-    val DEFAULT_PROMPT_FORMAT : String =
+    val DEFAULT_SCALADOC_OPTIONS: Traversable[String] =
+      Seq("-groups", "-implicits")
+
+    val DEFAULT_PROMPT_FORMAT   : String =
       "%s:%s:%s@%s> "
 
     def DEFAULT_RELEASE_STEPS : Traversable[sbtrelease.ReleaseStep] =
@@ -302,6 +383,7 @@ package org.scommon.sbt {
     val primarySettings        = SimpleSettings.primarySettings
     val promptSettings         = SimpleSettings.promptSettings
     val compilerSettings       = SimpleSettings.compilerSettings
+    val scaladocSettings       = SimpleSettings.scaladocSettings
     val mavenSettings          = SimpleSettings.mavenSettings
     val publishSettings        = SimpleSettings.publishSettings
     val releaseProcessSettings = SimpleSettings.releaseProcessSettings

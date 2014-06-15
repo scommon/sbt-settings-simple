@@ -9,11 +9,12 @@ package org.scommon.sbt.settings {
     def version = Keys.version in ThisBuild
 
     def defaultSettings(prompt: String, publish: Boolean): Seq[Setting[_]] =
-      Defaults.defaultSettings ++
+      Defaults.coreDefaultSettings ++
       Seq(
           AdditionalSettings.projectPromptName := prompt
         , publishArtifact := publish
       ) ++
+      ScaladocSettings.defaults ++
       PublishSettings.defaults ++
       ReleaseProcessSettings.defaults ++
       BuildSettings.defaults ++
