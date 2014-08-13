@@ -216,7 +216,7 @@ publishSettings in Global := publishing(
  * Provides easier customization of the release process
  * Automatically discovers the publishing destination's realm
  * Allows the customization of the behavior of producing pom output, release steps, serializing developer and license information, the prompt, the version control system for the prompt, loading credentials, loading the PGP passphrase, determining the next version after a release, and more.
- * Supports cross builds out of the box
+ * Supports cross compiling out of the box
 
 ## Deficiencies
  * Creating your own project template is confusing
