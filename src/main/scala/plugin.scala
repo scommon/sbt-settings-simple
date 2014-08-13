@@ -53,7 +53,8 @@ object CoreSettingsPlugin extends sbt.Plugin {
 
     override val buildSettings = Seq(
       compilerSettings in Global <<= (compilerSettings in Global) ?? {
-        SimpleSettings.compiling(
+        SimpleSettings.crossCompiling(
+          SimpleSettings.crossScala()
         )
       }
     )
@@ -65,7 +66,7 @@ object CoreSettingsPlugin extends sbt.Plugin {
 
       val primarySettings        = settingKey[PrimarySettings]("Standard primary settings")
       val promptSettings         = settingKey[PromptSettings]("Standard prompt settings")
-      val compilerSettings       = settingKey[CompilerSettings]("Standard compiler settings")
+      val compilerSettings       = settingKey[CrossCompileSettings]("Standard compiler (and cross-compiler) settings")
       val mavenSettings          = settingKey[MavenSettings]("Standard maven settings")
       val publishSettings        = settingKey[PublishSettings]("Standard publish settings")
       val releaseProcessSettings = settingKey[ReleaseProcessSettings]("Standard release process settings")
@@ -152,7 +153,30 @@ object CoreSettingsPlugin extends sbt.Plugin {
         , format        : String         = DEFAULT_PROMPT_FORMAT
       ) extends PromptSettings
 
-      sealed case class compiling(
+      sealed case class crossCompiling(
+          defaultVersion: Option[String]
+        , compilers: Traversable[CompilerSettings]
+      ) extends CrossCompileSettings
+
+      object crossCompiling {
+        def apply(provided: CompilerSettings*): crossCompiling =
+          crossCompiling(None, provided)
+
+        def apply(default: String, provided: CompilerSettings*): crossCompiling =
+          crossCompiling(
+              if ((default eq null) || default == "") None else Some(default)
+            , (if (provided.nonEmpty) provided else Seq(crossScala())): Traversable[CompilerSettings]
+          )
+      }
+
+      object compiling {
+        def apply(  scalaVersion : String              = DEFAULT_SCALA_VERSION
+                  , scalacOptions: Traversable[String] = DEFAULT_SCALAC_OPTIONS
+                  , javacOptions : Traversable[String] = DEFAULT_JAVAC_OPTIONS) =
+          crossCompiling(crossScala(scalaVersion, scalacOptions, javacOptions))
+      }
+
+      sealed case class crossScala(
           scalaVersion : String              = DEFAULT_SCALA_VERSION
         , scalacOptions: Traversable[String] = DEFAULT_SCALAC_OPTIONS
         , javacOptions : Traversable[String] = DEFAULT_JAVAC_OPTIONS
@@ -359,7 +383,7 @@ package org.scommon.sbt {
     type ScaladocApiMappingMap = Map[SimpleSettings.ArtifactSpec, ScaladocApiMappingUri]
 
     val DEFAULT_SCALA_VERSION   : String =
-      "2.10.4"
+      "2.11.2"
 
     val DEFAULT_SCALAC_OPTIONS  : Traversable[String] =
       Seq("-deprecation", "-unchecked", "-feature", "-Xelide-below", "900")

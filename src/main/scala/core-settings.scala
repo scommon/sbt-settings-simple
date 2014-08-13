@@ -7,7 +7,7 @@ import org.scommon.sbt.settings._
 trait CoreSettings {
   def primary       : PrimarySettings
   def prompt        : PromptSettings
-  def compiler      : CompilerSettings
+  def compiler      : CrossCompileSettings
   def scaladocs     : ScaladocSettings
   def maven         : MavenSettings
   def publish       : PublishSettings
@@ -18,7 +18,7 @@ object CoreSettings {
   def apply(
       primarySettings       : PrimarySettings
     , promptSettings        : PromptSettings
-    , compilerSettings      : CompilerSettings
+    , compilerSettings      : CrossCompileSettings
     , scaladocSettings      : ScaladocSettings
     , mavenSettings         : MavenSettings
     , publishSettings       : PublishSettings

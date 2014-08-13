@@ -22,9 +22,6 @@ object BuildSettings {
                                   )
                                 )
     , sbt.Keys.organization  := org.scommon.sbt.settings.primarySettings.value.organization
-    , sbt.Keys.scalaVersion  := org.scommon.sbt.settings.compilerSettings.value.scalaVersion
-    , sbt.Keys.scalacOptions := org.scommon.sbt.settings.compilerSettings.value.scalacOptions.toSeq
-    , sbt.Keys.javacOptions  := org.scommon.sbt.settings.compilerSettings.value.javacOptions.toSeq
   )
 
 }

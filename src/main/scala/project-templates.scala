@@ -15,6 +15,7 @@ package org.scommon.sbt.settings {
         , publishArtifact := publish
       ) ++
       ScaladocSettings.defaults ++
+      CrossCompileSettings.defaults ++
       PublishSettings.defaults ++
       ReleaseProcessSettings.defaults ++
       BuildSettings.defaults ++
