@@ -164,7 +164,7 @@ primarySettings in Global := primary(
 )
 
 compilerSettings in Global := compiling(
-    scalaVersion  = "2.10.4"
+    scalaVersion  = "2.11.2"
   , scalacOptions = Seq("-deprecation", "-unchecked")
 )
 
@@ -216,17 +216,17 @@ publishSettings in Global := publishing(
  * Provides easier customization of the release process
  * Automatically discovers the publishing destination's realm
  * Allows the customization of the behavior of producing pom output, release steps, serializing developer and license information, the prompt, the version control system for the prompt, loading credentials, loading the PGP passphrase, determining the next version after a release, and more.
+ * Supports cross builds out of the box
 
 ## Deficiencies
- * ***Not tested for cross builds***
  * Creating your own project template is confusing
  * Need to provide easier access to the SBT project settings so it's easier to extend and compose
 
 ## Requirements
- * SBT >= 0.13.0
+ * SBT >= 0.13.5
 
 ## Dependencies
-The following are automatically added as dependencies of this plugin and as such, do not to be explicitly added to `./project/build.sbt` (if they appear, you can safely remove them -- it's assumed you want to reduce boilerplate and that you want the safety of using this plugin which deals with the idiosyncrasies of the [PGP][1] and [release][2] plugins already):
+The following are automatically added as dependencies of this plugin and as such, are not to be explicitly added to `./project/build.sbt` (if they appear, you can safely remove them -- it's assumed you want to reduce boilerplate and that you want the safety of using this plugin which deals with the idiosyncrasies of the [PGP][1] and [release][2] plugins already):
  * <a href="https://github.com/sbt/sbt-pgp" target="_blank">`"com.typesafe.sbt" % "sbt-pgp" % "0.8.2"`</a>
  * <a href="https://github.com/sbt/sbt-release" target="_blank">`"com.github.gseitz" % "sbt-release" % "0.8.3"`</a>
 
@@ -319,7 +319,7 @@ Modules can be in any directory off the root directory, but normally they're in 
 ### Tasks and settings
 This plugin adds no tasks other than those provided by the [PGP][1] and [release][2] plugins themselves. It does however provide the following `settingKey`s that you can reference directly in your `.sbt` file after specifying `import SimpleSettings._`:
  * `primarySettings        := primary(...)`
- * `compilerSettings       := compiling(...)`
+ * `compilerSettings       := compiling(...)/crossCompiling(...)`
  * `scaladocSettings       := scaladocs(...)`
  * `mavenSettings          := maven(...)`
  * `publishSettings        := publishing(...)`
@@ -341,6 +341,35 @@ publishSettings := publishing(
 ```
 
 Artifacts are only signed during the release process. During snapshot publishing artifacts are ***not*** signed.
+
+### Cross Compiling
+Adding support to target multiple Scala versions is easy. If you have a similar section in your build:
+
+```scala
+compilerSettings in Global := compiling(
+    scalaVersion  = "2.11.2"
+  , scalacOptions = Seq("-deprecation", "-unchecked")
+)
+```
+
+change it to:
+
+```scala
+compilerSettings in Global := crossCompiling(
+  default = "2.11.2",
+  crossScala(
+      scalaVersion  = "2.10.4"
+    , scalacOptions = Seq("-deprecation", "-unchecked")
+  ),
+  crossScala(
+      scalaVersion = "2.11.2"
+    , scalacOptions = Seq("-deprecation", "-unchecked")
+  )
+)
+```
+
+The `default` version is optional. If it is omitted, the first instance of `crossScala(...)` will be used as the 
+default. The default will be what is used during normal, non-cross-compiled work.
 
 ## Customizing
 
