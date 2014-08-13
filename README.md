@@ -25,7 +25,7 @@ name := "sbt-settings-simple"
 
 organization := "org.scommon"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.2"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
