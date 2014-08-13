@@ -228,7 +228,7 @@ publishSettings in Global := publishing(
 ## Dependencies
 The following are automatically added as dependencies of this plugin and as such, are not to be explicitly added to `./project/build.sbt` (if they appear, you can safely remove them -- it's assumed you want to reduce boilerplate and that you want the safety of using this plugin which deals with the idiosyncrasies of the [PGP][1] and [release][2] plugins already):
  * <a href="https://github.com/sbt/sbt-pgp" target="_blank">`"com.typesafe.sbt" % "sbt-pgp" % "0.8.2"`</a>
- * <a href="https://github.com/sbt/sbt-release" target="_blank">`"com.github.gseitz" % "sbt-release" % "0.8.3"`</a>
+ * <a href="https://github.com/sbt/sbt-release" target="_blank">`"com.github.gseitz" % "sbt-release" % "0.8.4"`</a>
 
 ## Usage
 ### Adding the plugin dependency
