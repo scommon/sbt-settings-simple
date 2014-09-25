@@ -235,7 +235,7 @@ The following are automatically added as dependencies of this plugin and as such
 
 Add the following line to `./project/build.sbt`:
 
-`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.4")`
+`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.7")`
 
 **Please omit any references to the [PGP][1] and [release][2] plugins.**
 
