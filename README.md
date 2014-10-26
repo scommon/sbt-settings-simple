@@ -223,19 +223,19 @@ publishSettings in Global := publishing(
  * Need to provide easier access to the SBT project settings so it's easier to extend and compose
 
 ## Requirements
- * SBT >= 0.13.5
+ * SBT >= 0.13.6
 
 ## Dependencies
 The following are automatically added as dependencies of this plugin and as such, are not to be explicitly added to `./project/build.sbt` (if they appear, you can safely remove them -- it's assumed you want to reduce boilerplate and that you want the safety of using this plugin which deals with the idiosyncrasies of the [PGP][1] and [release][2] plugins already):
- * <a href="https://github.com/sbt/sbt-pgp" target="_blank">`"com.typesafe.sbt" % "sbt-pgp" % "0.8.2"`</a>
- * <a href="https://github.com/sbt/sbt-release" target="_blank">`"com.github.gseitz" % "sbt-release" % "0.8.4"`</a>
+ * <a href="https://github.com/sbt/sbt-pgp" target="_blank">`"com.typesafe.sbt" % "sbt-pgp" % "0.8.3"`</a>
+ * <a href="https://github.com/sbt/sbt-release" target="_blank">`"com.github.gseitz" % "sbt-release" % "0.8.5"`</a>
 
 ## Usage
 ### Adding the plugin dependency
 
 Add the following line to `./project/build.sbt`:
 
-`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.7")`
+`addSbtPlugin("org.scommon" % "sbt-settings-simple" % "0.0.8")`
 
 **Please omit any references to the [PGP][1] and [release][2] plugins.**
 
@@ -519,6 +519,11 @@ publishSettings := publishing(
 ##### `shouldSignArtifacts` <br />
    Allows you to change the logic for determining if artifacts should be signed or not. By default 
    this is governed by the `publishSettings.signArtifacts` setting.
+   <br />
+
+##### `releaseVersion` <br />
+   Modifies the current version to prepare it for release. By default it will strip the existing 
+   version of any qualifiers such as `"-SNAPSHOT"`.
    <br />
 
 ##### `nextVersion` <br />

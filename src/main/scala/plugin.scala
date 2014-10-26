@@ -306,20 +306,24 @@ object CoreSettingsPlugin extends sbt.Plugin {
 
       object releaseProcessBehavior {
         def apply(
-            shouldSignArtifacts : (ReleaseProcessBehavior, String,             CoreSettings) => Boolean                             = { (_, x, y) =>
+            shouldSignArtifacts : (ReleaseProcessBehavior, String, CoreSettings) => Boolean                             = { (_, x, y) =>
               ReleaseProcessBehavior.shouldSignArtifacts(x, y)
             }
-          , nextVersion         : (ReleaseProcessBehavior, sbtrelease.Version, CoreSettings) => String                              = { (_, x, y) =>
+          , releaseVersion      : (ReleaseProcessBehavior, String, CoreSettings) => String                              = { (_, x, y) =>
+              ReleaseProcessBehavior.releaseVersion(x, y)
+            }
+          , nextVersion         : (ReleaseProcessBehavior, String, CoreSettings) => String                              = { (_, x, y) =>
               ReleaseProcessBehavior.nextVersion(x, y)
             }
-          , loadPGPPassphrase   : (ReleaseProcessBehavior, String,             CoreSettings) => String                              = { (_, x, y) =>
+          , loadPGPPassphrase   : (ReleaseProcessBehavior, String, CoreSettings) => String                              = { (_, x, y) =>
               ReleaseProcessBehavior.loadPGPPassphrase(x, y)
             }
-          , customReleaseProcess: (ReleaseProcessBehavior, String,             CoreSettings) => Traversable[sbtrelease.ReleaseStep] = { (_, x, y) =>
+          , customReleaseProcess: (ReleaseProcessBehavior, String, CoreSettings) => Traversable[sbtrelease.ReleaseStep] = { (_, x, y) =>
               ReleaseProcessBehavior.customReleaseProcess(x, y)
             }
         ): ReleaseProcessBehavior = {
           val fnShouldSignArtifacts = shouldSignArtifacts
+          val fnReleaseVersion = releaseVersion
           val fnNextVersion = nextVersion
           val fnLoadPGPPassphrase = loadPGPPassphrase
           val fnCustomReleaseProcess = customReleaseProcess
@@ -328,7 +332,10 @@ object CoreSettingsPlugin extends sbt.Plugin {
             override def shouldSignArtifacts(version: String, settings: CoreSettings): Boolean =
               fnShouldSignArtifacts(ReleaseProcessBehavior, version, settings)
 
-            override def nextVersion(version: sbtrelease.Version, settings: CoreSettings): String =
+            override def releaseVersion(version: String, settings: CoreSettings): String =
+              fnReleaseVersion(ReleaseProcessBehavior, version, settings)
+
+            override def nextVersion(version: String, settings: CoreSettings): String =
               fnNextVersion(ReleaseProcessBehavior, version, settings)
 
             override def loadPGPPassphrase(version: String, settings: CoreSettings): String =

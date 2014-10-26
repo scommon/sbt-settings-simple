@@ -23,11 +23,16 @@ package org.scommon.sbt.settings {
     def shouldSignArtifacts(version: String, settings: CoreSettings): Boolean =
       settings.publish.signArtifacts
 
-    def nextVersion(version: Version, settings: CoreSettings): String = {
-      version
-        .bumpBugfix
-        .asSnapshot
-        .string
+    def releaseVersion(version: String, settings: CoreSettings): String = {
+      SemanticVersion(version)
+        .map(_.withoutQualifier.string)
+        .getOrElse(SemanticVersion.versionFormatError)
+    }
+
+    def nextVersion(version: String, settings: CoreSettings): String = {
+      SemanticVersion(version)
+        .map(_.bumpBugfix.asSnapshot.string)
+        .getOrElse(SemanticVersion.versionFormatError)
     }
 
     def loadPGPPassphrase(version: String, settings: CoreSettings): String = {
@@ -123,10 +128,10 @@ object ReleaseProcessSettings {
           )
       )
 
-  val nextVersion =
+  val releaseVersion =
     //Customize the next version string to bump the revision number.
-    sbtrelease.ReleasePlugin.ReleaseKeys.nextVersion := { ver =>
-      sbtrelease.Version(ver).map( v => delegateNextVersion(v,
+    sbtrelease.ReleasePlugin.ReleaseKeys.releaseVersion := { ver =>
+      delegateReleaseVersion(ver,
         CoreSettings(
             org.scommon.sbt.settings.primarySettings.value
           , org.scommon.sbt.settings.promptSettings.value
@@ -136,8 +141,23 @@ object ReleaseProcessSettings {
           , org.scommon.sbt.settings.publishSettings.value
           , org.scommon.sbt.settings.releaseProcessSettings.value
         )
-      ))
-      .getOrElse(sbtrelease.versionFormatError)
+      )
+    }
+
+  val nextVersion =
+    //Customize the next version string to bump the revision number.
+    sbtrelease.ReleasePlugin.ReleaseKeys.nextVersion := { ver =>
+      delegateNextVersion(ver,
+        CoreSettings(
+            org.scommon.sbt.settings.primarySettings.value
+          , org.scommon.sbt.settings.promptSettings.value
+          , org.scommon.sbt.settings.compilerSettings.value
+          , org.scommon.sbt.settings.scaladocSettings.value
+          , org.scommon.sbt.settings.mavenSettings.value
+          , org.scommon.sbt.settings.publishSettings.value
+          , org.scommon.sbt.settings.releaseProcessSettings.value
+        )
+      )
     }
 
   val defaultReleaseSteps =
@@ -155,7 +175,7 @@ object ReleaseProcessSettings {
     )
 
   val defaults =
-    pgpPassphrase +: sbtrelease.ReleasePlugin.releaseSettings :+ releaseProcess :+ nextVersion
+    pgpPassphrase +: sbtrelease.ReleasePlugin.releaseSettings :+ releaseProcess :+ releaseVersion :+ nextVersion
 
 
   private[this] def runPublishAction() = { st: sbt.State =>
@@ -186,7 +206,10 @@ object ReleaseProcessSettings {
   private[this] def delegateShouldSignArtifacts(version: String, settings: CoreSettings): Boolean =
     settings.releaseProcess.behavior.shouldSignArtifacts(version, settings)
 
-  private[this] def delegateNextVersion(version: sbtrelease.Version, settings: CoreSettings): String =
+  private[this] def delegateReleaseVersion(version: String, settings: CoreSettings): String =
+    settings.releaseProcess.behavior.releaseVersion(version, settings)
+
+  private[this] def delegateNextVersion(version: String, settings: CoreSettings): String =
     settings.releaseProcess.behavior.nextVersion(version, settings)
 
   private[this] def delegateLoadPGPPassphrase(version: String, settings: CoreSettings): String =
