@@ -27,8 +27,16 @@ object SemanticVersion {
       val SemanticVersionR(maj, min, mic, qual1, qual2) = s
       val optQual1 = Option(qual1)
       val optQual2 = Option(qual2)
-      val prerelease = if (optQual2.isDefined) optQual1 else None
-      val qual = optQual2.orElse(optQual1)
+      val isQual1Snapshot = optQual1.exists(_.toUpperCase.endsWith("SNAPSHOT"))
+      val prerelease = if (!isQual1Snapshot) optQual1 else None
+      val qual =
+        if (isQual1Snapshot)
+          optQual1
+        else if (optQual2.isDefined)
+          optQual2
+        else
+          None
+
       SemanticVersion(maj.toInt, Option(min).map(_.toInt), Option(mic).map(_.toInt), prerelease, qual.filterNot(_.isEmpty))
     }
   }
