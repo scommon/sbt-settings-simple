@@ -31,7 +31,12 @@ package org.scommon.sbt.settings {
 
     def nextVersion(version: String, settings: CoreSettings): String = {
       SemanticVersion(version)
-        .map(_.bumpBugfix.asSnapshot.string)
+        .map(v =>
+          if (v.prerelease.isEmpty)
+            v.bumpBugfix.asSnapshot.string
+          else
+            v.asSnapshot.string
+        )
         .getOrElse(SemanticVersion.versionFormatError)
     }
 
